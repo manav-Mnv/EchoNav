@@ -1,0 +1,6 @@
+# Place these two files here before building:
+#
+#   efficientdet_lite0.tflite   — Run: ./download_model.sh
+#   coco_labels.txt             — Created automatically by the same script
+#
+# See README.md → Quick Start for full instructions.

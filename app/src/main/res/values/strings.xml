@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EchoNav</string>
+    <string name="tap_to_start">Tap to start navigation</string>
+    <string name="tap_to_stop">Tap to stop navigation</string>
+    <string name="long_press_mode">Long press to change mode</string>
+    <string name="permission_rationale">EchoNav needs camera access to detect objects around you</string>
+    <string name="permission_button">Allow Camera</string>
+    <string name="loading">Loading detection model…</string>
+</resources>

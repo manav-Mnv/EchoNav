@@ -1,0 +1,16 @@
+﻿person
+bicycle
+car
+motorcycle
+bus
+truck
+chair
+couch
+bed
+toilet
+sink
+dining table
+bottle
+cup
+door
+stairs
