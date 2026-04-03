@@ -25,16 +25,16 @@ class BuildAnnouncementUseCase(
     fun execute(obj: DetectedObject): String {
         val direction = directionUseCase.execute(obj)
         val distance  = distanceUseCase.execute(obj)
-        val label     = obj.label.replaceFirstChar { it.uppercase() }
+        val labelStr  = obj.label.lowercase()
 
         // Build concise natural-language sentence
         val base = when (distance) {
-            "very close" -> "$label $direction, very close"
-            "nearby"     -> "$label $direction"
-            else         -> "$label $direction, ahead"
+            "very close" -> "There is a $labelStr very close $direction."
+            "nearby"     -> "There is a $labelStr nearby $direction."
+            else         -> "There is a $labelStr $direction."
         }
 
         // Append urgency suffix for immediate hazards
-        return if (distanceUseCase.isDanger(obj)) "$base. Caution." else base
+        return if (distanceUseCase.isDanger(obj)) "$base Please be careful." else base
     }
 }

@@ -18,10 +18,10 @@ class FeedbackFilterUseCase {
 
     companion object {
         // How long to suppress repeat announcements of the same label
-        private const val COOLDOWN_MS = 1_000L
+        private const val COOLDOWN_MS = 3_000L
 
         // A label is "new" if it hasn't been seen within this window
-        private const val FORGET_WINDOW_MS = 8_000L
+        private const val FORGET_WINDOW_MS = 10_000L
     }
 
     // Maps label → (last announced timestamp, last distance category)

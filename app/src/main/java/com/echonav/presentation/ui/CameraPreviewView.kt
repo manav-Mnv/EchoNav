@@ -42,10 +42,6 @@ fun CameraPreviewView(
     val context       = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    // Single-thread executor for image analysis — one frame at a time
-    val analysisExecutor = remember { Executors.newSingleThreadExecutor() }
-    val analyzer         = remember { EchoNavImageAnalyzer(viewModel) }
-
     // AndroidView wraps the classic View-based PreviewView in Compose
     val previewView = remember {
         PreviewView(context).apply {
@@ -54,45 +50,32 @@ fun CameraPreviewView(
         }
     }
 
-    // Bind/unbind camera when composable enters/leaves composition
+    // Bind/unbind camera preview when composable enters/leaves composition
     DisposableEffect(lifecycleOwner) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+        var cameraProvider: ProcessCameraProvider? = null
+        var previewUseCase: Preview? = null
 
         cameraProviderFuture.addListener({
             try {
-                val cameraProvider = cameraProviderFuture.get()
+                cameraProvider = cameraProviderFuture.get()
 
                 // Preview use case — renders camera feed to PreviewView
-                val preview = Preview.Builder().build().also {
+                previewUseCase = Preview.Builder().build().also {
                     it.setSurfaceProvider(previewView.surfaceProvider)
                 }
 
-                // ImageAnalysis use case — feeds frames to TFLite
-                val imageAnalysis = ImageAnalysis.Builder()
-                    // Drop frames if analysis thread is busy — prevents backlog
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    // RGB_565 or YUV_420_888 — let CameraX choose optimal
-                    .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
-                    .build()
-                    .also {
-                        it.setAnalyzer(analysisExecutor, analyzer)
-                    }
-
-                // Use back camera — phone is pointing forward from pocket
                 val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
-                // Unbind any previous bindings before rebinding
-                cameraProvider.unbindAll()
-
-                // Bind to lifecycle — camera auto-starts/stops with app lifecycle
-                cameraProvider.bindToLifecycle(
+                // We do NOT unbindAll() because EchoNavService might have ImageAnalysis running.
+                // We just bind our Preview use case.
+                cameraProvider?.bindToLifecycle(
                     lifecycleOwner,
                     cameraSelector,
-                    preview,
-                    imageAnalysis
+                    previewUseCase
                 )
 
-                Log.i("CameraPreviewView", "Camera bound successfully")
+                Log.i("CameraPreviewView", "Preview bound successfully")
 
             } catch (e: Exception) {
                 Log.e("CameraPreviewView", "Camera binding failed: ${e.message}")
@@ -100,9 +83,9 @@ fun CameraPreviewView(
         }, ContextCompat.getMainExecutor(context))
 
         onDispose {
-            // Shut down analysis executor when composable leaves composition
-            analysisExecutor.shutdown()
-            Log.i("CameraPreviewView", "Analysis executor shut down")
+            // Unbind the preview when the view goes away
+            previewUseCase?.let { cameraProvider?.unbind(it) }
+            Log.i("CameraPreviewView", "Preview unbound")
         }
     }
 

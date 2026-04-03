@@ -36,7 +36,7 @@ class ObjectDetectorRepository(private val context: Context) {
         private const val TAG = "ObjectDetectorRepo"
 
         // TFLite model filename in assets/
-        private const val MODEL_FILE = "efficientdet_lite0.tflite"
+        private const val MODEL_FILE = "efficientdet_lite2.tflite"
         // Labels filename in assets/
         private const val LABELS_FILE = "coco_labels.txt"
 
@@ -48,8 +48,8 @@ class ObjectDetectorRepository(private val context: Context) {
             "bottle", "cup", "obstacle", "wall", "stairs", "step"
         )
 
-        // Minimum confidence to consider a detection valid
-        private const val MIN_CONFIDENCE = 0.35f
+        // Minimum confidence to consider a detection valid (increased for higher precision)
+        private const val MIN_CONFIDENCE = 0.45f
 
         // Maximum number of concurrent detections to process
         private const val MAX_RESULTS = 5

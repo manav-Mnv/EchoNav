@@ -24,8 +24,8 @@ class SpeechService(private val context: Context) {
 
     companion object {
         private const val TAG = "SpeechService"
-        private const val SPEECH_RATE  = 1.05f   // Slightly faster than default 1.0
-        private const val SPEECH_PITCH = 0.92f   // Slightly lower, calmer voice
+        private const val SPEECH_RATE  = 0.95f   // More natural conversational speed
+        private const val SPEECH_PITCH = 1.0f    // Natural pitch
     }
 
     private var tts: TextToSpeech? = null
@@ -47,6 +47,23 @@ class SpeechService(private val context: Context) {
                 ) {
                     Log.w(TAG, "TTS language not supported. Trying default locale.")
                     tts?.setLanguage(Locale.getDefault())
+                }
+
+                // Try to find a high-quality natural female voice
+                try {
+                    val voices = tts?.voices
+                    if (voices != null) {
+                        val preferredVoice = voices.firstOrNull {
+                            it.name.contains("en-us-x-tpf-local", ignoreCase = true) ||
+                            (it.locale == Locale.US && it.name.contains("female", ignoreCase = true))
+                        }
+                        if (preferredVoice != null) {
+                            tts?.voice = preferredVoice
+                            Log.i(TAG, "Selected TTS voice: ${preferredVoice.name}")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to set custom voice: ${e.message}")
                 }
 
                 // Apply custom speaking rate and pitch for clarity

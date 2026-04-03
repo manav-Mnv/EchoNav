@@ -15,15 +15,15 @@
 set -e
 
 ASSETS_DIR="app/src/main/assets"
-MODEL_FILE="efficientdet_lite0.tflite"
+MODEL_FILE="efficientdet_lite2.tflite"
 LABELS_FILE="coco_labels.txt"
 
 echo "📦 Creating assets directory..."
 mkdir -p "$ASSETS_DIR"
 
-# ── Download EfficientDet-Lite0 (quantized) ──────────────────
-MODEL_URL="https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/object_detection/android/lite-model_efficientdet_lite0_detection_metadata_1.tflite"
-MODEL_ALT_URL="https://tfhub.dev/tensorflow/lite-model/efficientdet/lite0/detection/metadata/1?lite-format=tflite"
+# ── Download EfficientDet-Lite2 (quantized) ──────────────────
+MODEL_URL="https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/object_detection/android/lite-model_efficientdet_lite2_detection_metadata_1.tflite"
+MODEL_ALT_URL="https://tfhub.dev/tensorflow/lite-model/efficientdet/lite2/detection/metadata/1?lite-format=tflite"
 
 echo "⬇️  Downloading EfficientDet-Lite0..."
 if command -v curl &> /dev/null; then

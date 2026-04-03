@@ -2,6 +2,7 @@ package com.echonav.presentation.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -23,12 +24,9 @@ import com.echonav.presentation.viewmodel.EchoNavViewModel
  *
  * Responsibilities:
  *   1. Keep screen on (critical for navigation use case)
- *   2. Handle CAMERA permission request lifecycle
+ *   2. Handle CAMERA and NOTIFICATION permission request lifecycle
  *   3. Route between PermissionScreen and EchoNavScreen
  *   4. Host the single ViewModel instance
- *
- * Architecture note: We deliberately keep this class thin.
- * All business logic lives in EchoNavViewModel.
  */
 class MainActivity : ComponentActivity() {
 
@@ -36,10 +34,11 @@ class MainActivity : ComponentActivity() {
     private val viewModel: EchoNavViewModel by viewModels()
 
     // Permission launcher using the modern Activity Result API
-    private val cameraPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        viewModel.onCameraPermissionResult(granted)
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val cameraGranted = permissions[Manifest.permission.CAMERA] ?: false
+        viewModel.onCameraPermissionResult(cameraGranted)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +48,7 @@ class MainActivity : ComponentActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         // Check permission state immediately (it may already be granted)
-        checkAndRequestCameraPermission()
+        checkCameraPermission()
 
         setContent {
             EchoNavTheme {
@@ -65,7 +64,7 @@ class MainActivity : ComponentActivity() {
                     } else {
                         // Ask for camera permission before showing camera UI
                         PermissionScreen(
-                            onRequestPermission = { requestCameraPermission() }
+                            onRequestPermission = { requestCameraAndNotificationPermissions() }
                         )
                     }
                 }
@@ -75,9 +74,8 @@ class MainActivity : ComponentActivity() {
 
     /**
      * Checks if permission is already granted. If yes, notifies ViewModel immediately.
-     * If not, proceeds to the permission request flow.
      */
-    private fun checkAndRequestCameraPermission() {
+    private fun checkCameraPermission() {
         val alreadyGranted = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.CAMERA
@@ -92,10 +90,14 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * Fires the system permission dialog.
+     * Fires the system permission dialog for Camera and Notifications.
      * Called from PermissionScreen's button.
      */
-    private fun requestCameraPermission() {
-        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+    private fun requestCameraAndNotificationPermissions() {
+        val permissions = mutableListOf(Manifest.permission.CAMERA)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        permissionLauncher.launch(permissions.toTypedArray())
     }
 }
