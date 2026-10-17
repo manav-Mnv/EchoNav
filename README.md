@@ -1,5 +1,7 @@
 # EchoNav — Offline AI Navigation Companion for Blind Users
 
+![Status](https://img.shields.io/badge/status-prototype-0969da?style=flat-square)
+
 > *"Your ears are ahead of your eyes. EchoNav makes sure they stay that way."*
 
 EchoNav is a fully offline Android app that uses real-time computer vision to detect nearby objects and communicate them via voice and haptic feedback — designed for blind and visually impaired users who need ambient situational awareness.
